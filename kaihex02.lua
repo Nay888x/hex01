@@ -9,6 +9,11 @@ local Window = Rayfield:CreateWindow({
       FolderName = nil,
       FileName = "W"
    },
+   Discord = {
+      Enabled = false,
+      Invite = nil,
+      RememberJoins = true
+   },
    KeySystem = false, -- Changed to false to disable key system
    KeySettings = {
       Title = "Untitled",
@@ -19,29 +24,11 @@ local Window = Rayfield:CreateWindow({
       GrabKeyFromSite = false, -- Changed to false
       Key = {""}  -- Emptied keys
    },
-   WindowTransparency = 0.7, -- Add transparency (0.7 = 30% transparent)
-   HidePremium = true, -- Hide premium label
+   Transparency = 0.5 -- Add transparency (0 = fully transparent, 1 = opaque)
 })
 
 local MainTab = Window:CreateTab("หน้าหลัก", nil) -- Title, Image
 local MainSection = MainTab:CreateSection("เมนูหลัก")
-
--- Add UI Settings Section
-local UISection = MainTab:CreateSection("การตั้งค่า UI")
-
--- Add transparency slider
-local TransparencySlider = MainTab:CreateSlider({
-   Name = "ความโปร่งใสของ UI",
-   Range = {0, 1},
-   Increment = 0.05,
-   Suffix = "",
-   CurrentValue = 0.7,
-   Flag = "UITransparency",
-   Callback = function(Value)
-      -- Update the window transparency in real-time
-      Rayfield:SetWindowTransparency(Value)
-   end,
-})
 
 -- Create a variable to store the ESP drawing
 local espLine = nil
