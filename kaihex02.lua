@@ -1,36 +1,47 @@
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/sirius-software/rayfield/main/source'))()
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Purge hub",
    LoadingTitle = "Purge OT",
-   LoadingSubtitle = "โดย Lxwnu",
+   LoadingSubtitle = "สร้างโดย Lxwnu",
    ConfigurationSaving = {
       Enabled = false,
-      FolderName = "W",
-      FileName = "PurgeConfig"
+      FolderName = nil,
+      FileName = "W"
    },
-   KeySystem = false, -- Set this to true to use their key system
+   KeySystem = false, -- Changed to false to disable key system
    KeySettings = {
-      Title = "Purge OT",
-      Subtitle = "Key System",
-      Note = "ยินดีต้อนรับ!",
-      FileName = "PurgeKey",
-      SaveKey = false,
-      GrabKeyFromSite = false,
-      Key = {"Hello"}
-   }
+      Title = "Untitled",
+      Subtitle = "Purge hub keys",
+      Note = "No method of obtaining the key is provided",
+      FileName = "hub",
+      SaveKey = true,
+      GrabKeyFromSite = false, -- Changed to false
+      Key = {""}  -- Emptied keys
+   },
+   WindowTransparency = 0.7, -- Add transparency (0.7 = 30% transparent)
+   HidePremium = true, -- Hide premium label
 })
 
-Rayfield:Notify({
-   Title = "Purge OT",
-   Content = "ยินดีต้อนรับ!",
-   Duration = 3,
-   Image = 4483345998,
-})
-
-local MainTab = Window:CreateTab("หน้าหลัก", 4483345998)
-
+local MainTab = Window:CreateTab("หน้าหลัก", nil) -- Title, Image
 local MainSection = MainTab:CreateSection("เมนูหลัก")
+
+-- Add UI Settings Section
+local UISection = MainTab:CreateSection("การตั้งค่า UI")
+
+-- Add transparency slider
+local TransparencySlider = MainTab:CreateSlider({
+   Name = "ความโปร่งใสของ UI",
+   Range = {0, 1},
+   Increment = 0.05,
+   Suffix = "",
+   CurrentValue = 0.7,
+   Flag = "UITransparency",
+   Callback = function(Value)
+      -- Update the window transparency in real-time
+      Rayfield:SetWindowTransparency(Value)
+   end,
+})
 
 -- Create a variable to store the ESP drawing
 local espLine = nil
@@ -77,10 +88,9 @@ local function pressEandQ()
 end
 
 -- Create a toggle for the ESP feature
-MainTab:CreateToggle({
+local Toggle = MainTab:CreateToggle({
    Name = "ESP ลูกฟุตบอล",
-   Default = false,
-   Save = false,
+   CurrentValue = false,
    Flag = "FootballESP",
    Callback = function(Value)
       if Value then
@@ -218,10 +228,9 @@ getgenv().shotPower = 64.36308398842812
 getgenv().shotAngle = {x = -0.666259765625, y = -0.2594583034515381, z = 0.6991274952888489}
 
 -- Update the teleport function to use the new shooting method
-MainTab:CreateToggle({
+local TeleportToggle = MainTab:CreateToggle({
    Name = "วาร์ปไปหาลูกฟุตบอลอัตโนมัติ",
-   Default = false,
-   Save = false,
+   CurrentValue = false,
    Flag = "AutoTeleport",
    Callback = function(Value)
       if Value then
@@ -329,10 +338,9 @@ MainTab:CreateToggle({
 local GoalSection = MainTab:CreateSection("ตั้งค่าประตู")
 
 -- Add toggles for goal selection and auto-shoot
-MainTab:CreateToggle({
+local GoalToggle = MainTab:CreateToggle({
    Name = "วาร์ปไปยังประตูเมื่อได้บอล",
-   Default = true,
-   Save = false,
+   CurrentValue = true,
    Flag = "GoalTeleport",
    Callback = function(Value)
       getgenv().goalTeleportEnabled = Value
@@ -340,30 +348,26 @@ MainTab:CreateToggle({
 })
 
 -- Replace the toggle with a dropdown for selecting which goal to use
-MainTab:CreateDropdown({
+local GoalSelector = MainTab:CreateDropdown({
    Name = "เลือกประตูที่จะยิง",
-   Default = "Away (น้ำเงิน)",
-   Options = {"Away (น้ำเงิน)", "Home (ขาว)"},
-   Save = false,
+   Options = {"Away (น้ำเงิน)", " (ขาว)"},
+   CurrentOption = "Away (น้ำเงิน)",
    Flag = "SelectedGoal",
    Callback = function(Option)
       if Option == "Away (น้ำเงิน)" then
          getgenv().useAwayGoal = true
          print("Selected Away goal (blue)")
-         updateGoalLabel()
       else
          getgenv().useAwayGoal = false
          print("Selected Home goal (white)")
-         updateGoalLabel()
       end
    end,
 })
 
 -- Toggle for auto-shoot
-MainTab:CreateToggle({
+local ShootToggle = MainTab:CreateToggle({
    Name = "ยิงอัตโนมัติเมื่อวาร์ปไปถึงประตู",
-   Default = true,
-   Save = false,
+   CurrentValue = true,
    Flag = "AutoShoot",
    Callback = function(Value)
       getgenv().autoShootEnabled = Value
@@ -376,14 +380,20 @@ local CurrentGoalLabel = MainTab:CreateLabel("ประตูที่เลื�
 -- Function to update the goal label
 local function updateGoalLabel()
     local goalName = getgenv().useAwayGoal and "Away (น้ำเงิน)" or "Home (ขาว)"
-    CurrentGoalLabel:Set("ประตูที่เลือก: " .. goalName)
+    CurrentGoalLabel.Text = "ประตูที่เลือก: " .. goalName
+end
+
+-- Update the goal selector callback to also update the label
+local oldGoalCallback = GoalSelector.Callback
+GoalSelector.Callback = function(Option)
+    oldGoalCallback(Option)
+    updateGoalLabel()
 end
 
 -- Add a new toggle for aggressive ball stealing mode
-MainTab:CreateToggle({
+local AggressiveStealToggle = MainTab:CreateToggle({
    Name = "โหมดแย่งบอลแบบก้าวร้าว",
-   Default = true,
-   Save = false,
+   CurrentValue = true,
    Flag = "AggressiveStealing",
    Callback = function(Value)
       getgenv().aggressiveStealing = Value
@@ -391,13 +401,12 @@ MainTab:CreateToggle({
 })
 
 -- Add a label explaining the aggressive stealing feature
-MainTab:CreateLabel("โหมดแย่งบอลแบบก้าวร้าว: วาร์ปเข้าไปที่ตำแหน่งลูกบอลโดยตรง")
+local StealingInfoLabel = MainTab:CreateLabel("โหมดแย่งบอลแบบก้าวร้าว: วาร์ปเข้าไปที่ตำแหน่งลูกบอลโดยตรง")
 
 -- Add option to control whether to press Q after E
-MainTab:CreateToggle({
+local PressQToggle = MainTab:CreateToggle({
    Name = "กด Q หลังจากกด E",
-   Default = true,
-   Save = false,
+   CurrentValue = true,
    Flag = "PressQAfterE",
    Callback = function(Value)
       getgenv().shouldPressQ = Value
@@ -418,15 +427,12 @@ MainTab:CreateToggle({
 })
 
 -- Add delay slider between E and Q
-MainTab:CreateSlider({
+local KeyDelaySlider = MainTab:CreateSlider({
    Name = "ระยะเวลาระหว่างการกด E และ Q",
-   Min = 0.05,
-   Max = 1,
-   Default = 0.2,
-   Color = Color3.fromRGB(255,144,0),
+   Range = {0.05, 1},
    Increment = 0.05,
-   ValueName = "วินาที",
-   Save = false,
+   Suffix = "วินาที",
+   CurrentValue = 0.2,
    Flag = "KeyPressDelay",
    Callback = function(Value)
       getgenv().keyPressDelay = Value
@@ -447,15 +453,12 @@ MainTab:CreateSlider({
 })
 
 -- Add cooldown slider
-MainTab:CreateSlider({
+local CooldownSlider = MainTab:CreateSlider({
    Name = "เวลาคูลดาวน์หลังโยนบอล",
-   Min = 0,
-   Max = 5,
-   Default = 2,
-   Color = Color3.fromRGB(255,144,0),
+   Range = {0, 5},
    Increment = 0.1,
-   ValueName = "วินาที",
-   Save = false,
+   Suffix = "วินาที",
+   CurrentValue = 2,
    Flag = "ThrowCooldown",
    Callback = function(Value)
       getgenv().throwCooldown = Value
@@ -492,11 +495,18 @@ local function updateStatusConnection(enabled)
                     status = "สถานะ: พร้อมที่จะวาร์ป"
                 end
             end
-            StatusLabel:Set(status)
+            StatusLabel.Text = status
         end)
     else
-        StatusLabel:Set("สถานะ: ปิดใช้งาน")
+        StatusLabel.Text = "สถานะ: ปิดใช้งาน"
     end
+end
+
+-- Update the teleport toggle callback to also manage status updates
+local oldCallback = TeleportToggle.Callback
+TeleportToggle.Callback = function(Value)
+    oldCallback(Value)
+    updateStatusConnection(Value)
 end
 
 -- Initialize the global variables
@@ -511,15 +521,12 @@ getgenv().autoShootEnabled = true
 local ShotSection = MainTab:CreateSection("ปรับแต่งการยิง")
 
 -- Add slider for shot power
-MainTab:CreateSlider({
+local PowerSlider = MainTab:CreateSlider({
    Name = "พลังในการยิง",
-   Min = 50,
-   Max = 80,
-   Default = 64.36,
-   Color = Color3.fromRGB(255,144,0),
+   Range = {50, 80},
    Increment = 0.5,
-   ValueName = "power",
-   Save = false,
+   Suffix = "power",
+   CurrentValue = 64.36,
    Flag = "ShotPower",
    Callback = function(Value)
       getgenv().shotPower = Value
@@ -527,15 +534,12 @@ MainTab:CreateSlider({
 })
 
 -- Add height adjustment slider
-MainTab:CreateSlider({
+local HeightSlider = MainTab:CreateSlider({
    Name = "ปรับความสูงของการยิง",
-   Min = -0.5,
-   Max = 0.5,
-   Default = 0.05,
-   Color = Color3.fromRGB(255,144,0),
+   Range = {-0.5, 0.5},
    Increment = 0.01,
-   ValueName = "height",
-   Save = false,
+   Suffix = "height",
+   CurrentValue = 0.05,
    Flag = "HeightAdjustment",
    Callback = function(Value)
       getgenv().heightAdjustment = Value
@@ -543,7 +547,7 @@ MainTab:CreateSlider({
 })
 
 -- Add button to test shot parameters
-MainTab:CreateButton({
+local TestShotButton = MainTab:CreateButton({
    Name = "ทดสอบการยิง",
    Callback = function()
       -- Create a direction vector using the current height adjustment
@@ -554,13 +558,12 @@ MainTab:CreateButton({
          Title = "ทดสอบการยิง",
          Content = "ยิงด้วยพลัง: " .. getgenv().shotPower .. ", ปรับความสูง: " .. getgenv().heightAdjustment,
          Duration = 3,
-         Image = 4483345998,
       })
    end,
 })
 
 -- Add a button to save successful shot settings
-MainTab:CreateButton({
+local SaveShotButton = MainTab:CreateButton({
    Name = "บันทึกการตั้งค่าการยิงที่ประสบความสำเร็จ",
    Callback = function()
       -- Save the current settings to a file
@@ -574,7 +577,6 @@ MainTab:CreateButton({
          Title = "บันทึกการตั้งค่า",
          Content = "บันทึกการตั้งค่าการยิงเรียบร้อยแล้ว",
          Duration = 3,
-         Image = 4483345998,
       })
       
       -- Here you could write to a file if needed
@@ -583,15 +585,12 @@ MainTab:CreateButton({
 })
 
 -- Add delay before shooting slider
-MainTab:CreateSlider({
+local ShootDelaySlider = MainTab:CreateSlider({
    Name = "ความล่าช้าก่อนยิง",
-   Min = 0.1,
-   Max = 1,
-   Default = 0.3,
-   Color = Color3.fromRGB(255,144,0),
+   Range = {0.1, 1},
    Increment = 0.05,
-   ValueName = "วินาที",
-   Save = false,
+   Suffix = "วินาที",
+   CurrentValue = 0.3,
    Flag = "ShootDelay",
    Callback = function(Value)
       getgenv().shootDelay = Value
@@ -602,6 +601,3 @@ MainTab:CreateSlider({
 getgenv().shotPower = 64.36308398842812
 getgenv().heightAdjustment = 0.05
 getgenv().shootDelay = 0.3
-
--- Initialize the UI
-Rayfield:LoadConfiguration()
