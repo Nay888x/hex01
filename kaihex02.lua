@@ -9,11 +9,6 @@ local Window = Rayfield:CreateWindow({
       FolderName = nil,
       FileName = "W"
    },
-   Discord = {
-      Enabled = false,
-      Invite = nil,
-      RememberJoins = true
-   },
    KeySystem = false, -- Changed to false to disable key system
    KeySettings = {
       Title = "Untitled",
@@ -23,8 +18,7 @@ local Window = Rayfield:CreateWindow({
       SaveKey = true,
       GrabKeyFromSite = false, -- Changed to false
       Key = {""}  -- Emptied keys
-   },
-   Transparency = 0.5 -- Add transparency (0 = fully transparent, 1 = opaque)
+   }
 })
 
 local MainTab = Window:CreateTab("หน้าหลัก", nil) -- Title, Image
